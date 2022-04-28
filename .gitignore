@@ -268,3 +268,6 @@ __azurite_db_blob__.json
 __azurite_db_blob_extent__.json
 __blobstorage__/4a02de5a-ec35-40bc-8cda-0fa7cdb92812
 __blobstorage__/e00a5c66-4a69-475f-8a97-615ee7af603a
+.vscode/extensions.json
+.vscode/launch.json
+.vscode/settings.json
