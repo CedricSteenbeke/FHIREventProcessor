@@ -4,7 +4,7 @@
 # Azure Functions localsettings file
 local.settings.json
 
-.vscpde/
+.vscode/
 
 # User-specific files
 *.suo
