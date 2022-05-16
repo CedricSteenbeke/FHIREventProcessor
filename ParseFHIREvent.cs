@@ -28,13 +28,16 @@ namespace Microsoft.fhirdemo
             string clientId = Environment.GetEnvironmentVariable("ClientId");
             string clientSecret = Environment.GetEnvironmentVariable("ClientSecret");
             Uri fhirServerUrl = new Uri(Environment.GetEnvironmentVariable("FhirServerUrl"));
+            
+            
 
             foreach (EventData eventData in events)
             {
                 try
                 {
                     string messageBody = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
-
+                    AlgorithmFormat af = new AlgorithmFormat();
+                    
                     // Replace these two lines with your processing logic.
                     log.LogInformation($"C# Event Hub trigger function processed a message: "+ messageBody);
 
@@ -54,31 +57,36 @@ namespace Microsoft.fhirdemo
                         newRequest.Headers.Add("Prefer", "respond-async");
                         //Read Server Response
                         HttpResponseMessage response = await newClient.SendAsync(newRequest);
-                        log.LogInformation(response.ToString());
-                        string content = "";
+                        
                         if(response.IsSuccessStatusCode){
                             var c = await response.Content.ReadAsStringAsync();
-
-                            //using(var reader = new System.IO.StreamReader(await response.Content.ReadAsStringAsync()))
-                            
-                            
                             var fhirParser = new FhirJsonParser();
-                            try
+                            //Fetch diagnostics
+                            DiagnosticReport parsedDR = fhirParser.Parse<DiagnosticReport>(c);
+                            foreach (var obsResult in parsedDR.Result)
                             {
-                                DiagnosticReport parsedObservation = fhirParser.Parse<DiagnosticReport>(c);
-                                log.LogInformation("Parsed DiagnosticReport: " + parsedObservation.Status);
+                                //fetch observation
+                                fhirEndpoint = fhirServerUrl + "/" + obsResult.Reference;
+                                HttpRequestMessage obsRequest = new HttpRequestMessage(HttpMethod.Get, fhirEndpoint);
+                                obsRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authResult.AccessToken);
+                                obsRequest.Headers.Add("Accept", "application/fhir+json");
+                                obsRequest.Headers.Add("Prefer", "respond-async");
+                                HttpResponseMessage obsResponse = await newClient.SendAsync(obsRequest);
+                                if (obsResponse.IsSuccessStatusCode)
+                                {
+                                    // Store observation value in the AF object.
+                                    var o = await obsResponse.Content.ReadAsStringAsync();
+                                    Observation parsedObs = fhirParser.Parse<Observation>(o);
+                                    string obsCode = parsedObs.Code.Coding[0].Code;
+                                    string obsValue = ((Quantity)parsedObs.Value).Value.ToString();
+                                    af.setObservation(obsCode, obsValue);
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                // We need to keep processing the rest of the batch - capture this exception and continue.
-                                // Also, consider capturing details of the message that failed processing so it can be processed again later.
-                                exceptions.Add(ex);
-                            }
-                                
-                            
-                            log.LogInformation(content);
                         }
-                        
+
+                        // send the message on to the next step in the process.
+                        // For now we just log the message for demo purposes.
+                        log.LogInformation("Output Message: " + JsonConvert.SerializeObject(af));
                     }
                     
                     await System.Threading.Tasks.Task.Yield();
