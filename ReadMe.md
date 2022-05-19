@@ -1,12 +1,15 @@
 # FHIR Post Processor sample code
-This sample code is NOT meant for production, it is purely for testing purposes.
+This sample code is **NOT meant for production**, it is purely for testing purposes.
 
 # Scenario
 When a new DiagnosticReport (DR) is created we wish to trigger an external algortihm that does not handle FHIR bundles.
 We need to fetch the DR and retreive all associated Observations. Once this is done we want to map the different Observations for specific values to the format defined by the Algorithm.
 
-# notes on markers
-Please note that the Loinc codes used ar NOT OFFICIAL, this is just a sample to showcase how the mapping could be done.
+# Diagram
+![Solution Diagram](/Samples/Images/SolutionArhitecture.drawio.png)
+
+# Notes on markers
+Please note that the Loinc codes used ar **NOT OFFICIAL**, this is just a **sample** to showcase how the mapping could be done.
 
 ---
 | name | unit | range | Loinc used |
@@ -23,3 +26,18 @@ Please note that the Loinc codes used ar NOT OFFICIAL, this is just a sample to 
 | DBP | mmHg | 40-100 | X000-5 |
 | Proteinuria | category | 0-5 | X000-6 | 
 ---
+
+# Power app
+The sample Power App has three screens:
+- home
+- new patient
+- Observations
+
+The home screen allows you to search for a existing patient and add observations for this patient. You can also navigate to the create a new patient screen.
+![Patient Search Screen](/PowerPlatform/SimplePatientSearch.png)
+
+On the create patient screen you can submit a minimal set of parameters for the specific patient. This is done to mimimize the amount of PII we store.
+![Patient creation Screen](/PowerPlatform/addNewPatient.png)
+
+The final screen is where we can submit the Observations and kickstart the analysis process if using the HTTP triggered Function.
+![Patient creation Screen](/PowerPlatform/SubmitAndAnalyseParameters.png)
