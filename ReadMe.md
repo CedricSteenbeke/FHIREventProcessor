@@ -41,3 +41,30 @@ On the create patient screen you can submit a minimal set of parameters for the 
 
 The final screen is where we can submit the Observations and kickstart the analysis process if using the HTTP triggered Function.
 ![Patient creation Screen](/PowerPlatform/SubmitAndAnalyseParameters.png)
+
+# How to deploy
+
+## Prerequirements
+- Azure subscription
+- Access to [Power Portal](https://make.powerapps.com)
+- Permission in AAD to manage and create application registrations
+- Have an Azure Health Data Services environment deployed with a FHIR Service. [Deployment instructions](https://docs.microsoft.com/en-us/azure/healthcare-apis/fhir/fhir-portal-quickstart)
+
+## Step by step
+1. Deploy the function code to a new Azure Function.
+
+    From VS Code hit F1 and select "Deploy to Function App..."
+from here you can either create a new function app in your Azure tenant or overwrite an existing function instance.
+    
+2. Grant access to the FHIR API to the people or group that need access.
+
+    2a. 
+3. Import the Power App into the Power Portal.
+
+    3a. Configure the access to the FHIR API
+
+# To Do
+- finish step by step deploymend guide
+- write bicep scripts to deploy Azure environment
+- extend solution with consent registration
+- add security :)
